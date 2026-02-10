@@ -1,0 +1,31 @@
+import bcrypt from "bcrypt";
+import User from "../models/User.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import {
+  HTTP_CREATED,
+  HTTP_BAD_REQUEST,
+} from "../utils/constants.js";
+
+export const signup = asyncHandler(async (req, res) => {
+  const { firstname, lastname, email, password } = req.body;
+
+  const exists = await User.findOne({ email });
+  if (exists) {
+    throw new ApiError(HTTP_BAD_REQUEST, "Email already exists");
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const user = await User.create({
+    firstname,
+    lastname,
+    email,
+    password: hashedPassword
+  });
+
+  return res.status(HTTP_CREATED).json(
+    new ApiResponse(HTTP_CREATED, { userId: user._id }, "User registered successfully")
+  );
+});
