@@ -14,6 +14,8 @@ export default function App() {
         <Route path="/email-success" element={<EmailSuccess />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
       </Routes>
     </BrowserRouter>
   );
