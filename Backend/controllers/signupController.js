@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import User from "../models/User.js";
+import { findUserByEmail, createUser } from "../services/userService.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -11,14 +11,14 @@ import {
 export const signup = asyncHandler(async (req, res) => {
   const { firstname, lastname, email, password } = req.body;
 
-  const exists = await User.findOne({ email });
+  const exists = await findUserByEmail(email);
   if (exists) {
     throw new ApiError(HTTP_BAD_REQUEST, "Email already exists");
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const user = await User.create({
+  const user = await createUser({
     firstname,
     lastname,
     email,
