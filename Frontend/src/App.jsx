@@ -4,7 +4,8 @@ import VerifyEmail from "./pages/VerifyEmail";
 import EmailSuccess from "./pages/EmailSuccess";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 export default function App() {
   return (
     <BrowserRouter>
