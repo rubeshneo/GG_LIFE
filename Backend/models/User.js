@@ -13,6 +13,19 @@ const UserSchema = new mongoose.Schema(
     resetCode: { type: String },
     resetCodeExpiry: { type: Date },
 
+    wrongAttempts: {
+      type: Number,
+      default: 0
+    },
+    isLocked: {
+      type: Boolean,
+      default: false
+    },
+    isActive: {
+      type: Boolean,
+      default: true
+    }
+
   },
   { timestamps: true }
 );

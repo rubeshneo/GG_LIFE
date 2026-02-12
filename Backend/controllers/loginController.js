@@ -17,7 +17,36 @@ export const login = asyncHandler(async (req, res) => {
     throw new ApiError(HTTP_NOT_FOUND, "User not found");
   }
 
+  if (!user.isActive || user.isLocked) {
+    throw new ApiError(
+      HTTP_UNAUTHORIZED,
+      "Account locked after 3 attempts. Use Forgot Password."
+    );
+  }
+
   const isMatch = await bcrypt.compare(password, user.password);
+
+  if (!isMatch) {
+    user.wrongAttempts += 1;
+    if (user.wrongAttempts >= 3) {
+      user.isLocked = true;
+      user.isActive = false;
+    }
+
+    await user.save();
+
+    throw new ApiError(
+      HTTP_UNAUTHORIZED,
+      user.isLocked
+        ? "Account locked after 3 attempts. Use Forgot Password."
+        : `Invalid password. Attempts left: ${3 - user.wrongAttempts}`
+    );
+  }
+
+  user.wrongAttempts = 0;
+  user.isLocked = false;
+  user.isActive = true;
+  await user.save();
   if (!isMatch) {
     throw new ApiError(HTTP_UNAUTHORIZED, "Invalid password");
   }

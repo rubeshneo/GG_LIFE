@@ -31,6 +31,10 @@ export const resetPassword = asyncHandler(async (req, res) => {
     password: hashed,
     resetCode: null,
     resetCodeExpiry: null,
+
+    wrongAttempts: 0,
+    isLocked: false,
+    isActive: true
   });
 
   return res
