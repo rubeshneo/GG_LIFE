@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+import { findUserByEmail, saveUser } from "../services/userService.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -11,7 +11,7 @@ import {
 export const verifyCode = asyncHandler(async (req, res) => {
   const { email, code } = req.body;
 
-  const user = await User.findOne({ email });
+  const user = await findUserByEmail(email);
   if (!user) {
     throw new ApiError(HTTP_NOT_FOUND, "User not found");
   }
@@ -34,7 +34,7 @@ export const verifyCode = asyncHandler(async (req, res) => {
   //Clearing the code after successful verification
   user.code = null;
   user.codeExpiry = null;
-  await user.save();
+  await saveUser(user);
 
   return res.status(HTTP_OK).json(
     new ApiResponse(HTTP_OK, { token }, "Verification successful")

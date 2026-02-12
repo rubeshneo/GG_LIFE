@@ -1,4 +1,4 @@
-import User from "../models/User.js";
+import { findUserByEmail, saveUser } from "../services/userService.js";
 import nodemailer from "nodemailer";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -10,7 +10,7 @@ import {
 export const resendCode = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
-  const user = await User.findOne({ email });
+  const user = await findUserByEmail(email);
   if (!user) {
     throw new ApiError(HTTP_NOT_FOUND, "User not found");
   }
@@ -21,7 +21,7 @@ export const resendCode = asyncHandler(async (req, res) => {
 
   user.code = code;
   user.codeExpiry = expiry;
-  await user.save();
+  await saveUser(user);
 
   const transporter = nodemailer.createTransport({
     service: "gmail",
