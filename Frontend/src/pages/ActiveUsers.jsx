@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function ActiveUsers() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
 
@@ -37,9 +39,16 @@ export default function ActiveUsers() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto bg-white shadow rounded-xl p-6">
-        <h2 className="text-2xl font-bold mb-6">
-          Currently Logged In Users
-        </h2>
+
+        <div className="flex items-center gap-4 mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 transition"
+          >
+            &larr; Back
+          </button>
+          <h2 className="text-2xl font-bold">Currently Logged In Users</h2>
+        </div>
 
         {error && (
           <p className="text-red-500 mb-4">{error}</p>
