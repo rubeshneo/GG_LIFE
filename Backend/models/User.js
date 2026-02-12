@@ -13,6 +13,24 @@ const UserSchema = new mongoose.Schema(
     resetCode: { type: String },
     resetCodeExpiry: { type: Date },
 
+    wrongAttempts: {
+      type: Number,
+      default: 0
+    },
+    isLocked: {
+      type: Boolean,
+      default: false
+    },
+    isActive: {
+      type: Boolean,
+      default: true
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user"
+    }
+
   },
   { timestamps: true }
 );
