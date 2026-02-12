@@ -2,7 +2,8 @@ import { ApiError } from "../utils/ApiError.js";
 import { HTTP_BAD_REQUEST } from "../utils/constants.js";
 
 const nameRegex = /^[A-Za-z]+$/;
-const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+const emailRegex =/^[A-Za-z0-9][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
 const passwordRegex = /(?=.*[A-Za-z])(?=.*\d)/;
 
 export const validateSignup = (req, res, next) => {
@@ -89,3 +90,57 @@ export const validateResendCode = (req, res, next) => {
 
     next();
 };
+
+export const validateForgotPasswordEmail = (req, res, next) => {
+  const { email } = req.body;
+
+  if (!email) {
+    throw new ApiError(HTTP_BAD_REQUEST, "Email is required");
+  }
+
+  if (!emailRegex.test(email)) {
+    throw new ApiError(HTTP_BAD_REQUEST, "Invalid email format");
+  }
+
+  next();
+};
+
+export const validateForgotPasswordCode = (req, res, next) => {
+  const { email, code } = req.body;
+
+  if (!email || !code) {
+    throw new ApiError(HTTP_BAD_REQUEST, "Email and OTP code are required");
+  }
+
+  if (!emailRegex.test(email)) {
+    throw new ApiError(HTTP_BAD_REQUEST, "Invalid email format");
+  }
+
+  if (!/^\d{4}$/.test(code)) {
+    throw new ApiError(HTTP_BAD_REQUEST, "OTP must be a 4-digit number");
+  }
+
+  next();
+};
+
+export const validateResetPassword = (req, res, next) => {
+  const { newPassword, confirmPassword } = req.body;
+
+  if (!newPassword || !confirmPassword) {
+    throw new ApiError(HTTP_BAD_REQUEST, "Both password fields are required");
+  }
+
+  if (newPassword !== confirmPassword) {
+    throw new ApiError(HTTP_BAD_REQUEST, "Passwords do not match");
+  }
+
+  if (!passwordRegex.test(newPassword)) {
+    throw new ApiError(
+      HTTP_BAD_REQUEST,
+      "Password must be at least 8 characters and contain letters & numbers"
+    );
+  }
+
+  next();
+};
+
