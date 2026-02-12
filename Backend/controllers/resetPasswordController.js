@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { updateUserById } from "../services/userService.js";
+import User from "../models/User.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -27,7 +27,7 @@ export const resetPassword = asyncHandler(async (req, res) => {
 
   const hashed = await bcrypt.hash(newPassword, 10);
 
-  await updateUserById(decoded.userId, {
+  await User.findByIdAndUpdate(decoded.userId, {
     password: hashed,
     resetCode: null,
     resetCodeExpiry: null,

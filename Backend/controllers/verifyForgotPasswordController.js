@@ -4,12 +4,11 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { HTTP_OK, HTTP_BAD_REQUEST, HTTP_NOT_FOUND } from "../utils/constants.js";
-import { findUserByEmail } from "../services/userService.js";
 
 export const verifyForgotPassword = asyncHandler(async (req, res) => {
   const { email, code } = req.body;
 
-  const user = await findUserByEmail(email);
+  const user = await User.findOne({ email });
 
   if (!user) {
     throw new ApiError(HTTP_NOT_FOUND, "User not found");

@@ -31,7 +31,7 @@ export default function Login() {
         // Store token and user data
         localStorage.setItem("token", data.data.token);
         localStorage.setItem("user", JSON.stringify(data.data.user));
-        console.log("userdetails",data.data.user)
+        console.log("userdetails", data.data.user)
 
         navigate("/dashboard");
 
@@ -76,6 +76,15 @@ export default function Login() {
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-600 outline-none"
           />
+          <div className="text-right">
+            <button
+              type="button"
+              onClick={() => navigate("/forgot-password")}
+              className="text-sm text-green-600 hover:underline"
+            >
+              Forgot password?
+            </button>
+          </div>
 
           <button
             disabled={loading}
@@ -85,19 +94,19 @@ export default function Login() {
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
-        
-<div className="mt-6 text-center">
-  <p className="text-sm text-gray-600">
-    Not registered?
-  </p>
-  <button
-    type="button"
-    onClick={() => navigate("/")}
-    className="mt-2 w-full border border-green-600 text-green-600 py-3 rounded-lg font-semibold hover:bg-green-50 transition"
-  >
-    Create Account
-  </button>
-</div>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600">
+            Not registered?
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="mt-2 w-full border border-green-600 text-green-600 py-3 rounded-lg font-semibold hover:bg-green-50 transition"
+          >
+            Create Account
+          </button>
+        </div>
       </div>
     </div>
   );
