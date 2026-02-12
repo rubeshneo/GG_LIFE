@@ -32,9 +32,9 @@ export default function Login() {
       console.log(data)
 
       if (response.ok) {
-        // Store token and user data
         localStorage.setItem("token", data.data.token);
         localStorage.setItem("user", JSON.stringify(data.data.user));
+<<<<<<< HEAD
         console.log("userdetails", data.data.user)
         setAttemptsLeft(null);
         setIsLocked(false);
@@ -63,6 +63,17 @@ export default function Login() {
           setIsLocked(true);
           setAttemptsLeft(0);
         }
+=======
+
+        if (data.data.user.role === "admin") {
+          navigate("/admin-dashboard");
+        } else {
+          navigate("/dashboard");
+        }
+      }
+      else {
+        setError(data.message || "Login failed");
+>>>>>>> origin/feature-frontend-manisha-changes
       }
 
     } catch (err) {
