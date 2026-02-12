@@ -34,36 +34,6 @@ export default function Login() {
       if (response.ok) {
         localStorage.setItem("token", data.data.token);
         localStorage.setItem("user", JSON.stringify(data.data.user));
-<<<<<<< HEAD
-        console.log("userdetails", data.data.user)
-        setAttemptsLeft(null);
-        setIsLocked(false);
-        navigate("/dashboard");
-
-      } else {
-        let msg = data.message || "Login failed";
-        if (msg.includes("Account locked")) {
-          msg = "Account locked after 3 attempts. Use Reset Password.";
-        }
-
-        setError(msg);
-        // reset previous state
-        setAttemptsLeft(null);
-
-        // if backend sends attempts left in message
-        if (msg.includes("Attempts left")) {
-          const match = msg.match(/\d+/); // extract number
-          if (match) {
-            setAttemptsLeft(Number(match[0]));
-          }
-        }
-
-        // if account is locked
-        if (msg.includes("Account locked")) {
-          setIsLocked(true);
-          setAttemptsLeft(0);
-        }
-=======
 
         if (data.data.user.role === "admin") {
           navigate("/admin-dashboard");
@@ -73,7 +43,6 @@ export default function Login() {
       }
       else {
         setError(data.message || "Login failed");
->>>>>>> origin/feature-frontend-manisha-changes
       }
 
     } catch (err) {
