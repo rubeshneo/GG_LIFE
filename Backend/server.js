@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authroutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 import { errorHandler } from "./middleware/errorMiddleware.js";
 
 dotenv.config();
@@ -17,6 +18,7 @@ connectDB();
 
 
 app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
 app.use(errorHandler);
 
 app.get("/", (req, res) => {
