@@ -54,3 +54,12 @@ export const saveUser = async (user) => {
 export const findUserByRole = async (role) => {
     return await User.findOne({ role });
 };
+
+/**
+ * Find all users based on a filter.
+ * @param {Object} filter - The filter criteria.
+ * @returns {Promise<Array>} List of user documents.
+ */
+export const findAllUsers = async (filter = {}) => {
+    return await User.find(filter);
+};
