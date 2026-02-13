@@ -32,7 +32,6 @@ export default function Login() {
       console.log(data)
 
       if (response.ok) {
-        // Store token and user data
         localStorage.setItem("token", data.data.token);
         localStorage.setItem("user", JSON.stringify(data.data.user));
         console.log("userdetails", data.data.user)

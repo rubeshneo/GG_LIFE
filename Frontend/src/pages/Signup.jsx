@@ -15,6 +15,7 @@ export default function Signup() {
     lastname: "",
     email: "",
     password: "",
+    role: ""
   });
 
   const [errors, setErrors] = useState({});
@@ -49,7 +50,9 @@ export default function Signup() {
         if (!passwordRegex.test(value))
           return "Password must be at least 8 characters and contain letters & numbers";
         return "";
-
+      case "role":
+        if (!value) return "Please select a role";
+        return "";
       default:
         return "";
     }
@@ -177,11 +180,10 @@ export default function Signup() {
                 value={form.firstname}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                className={`w-full px-4 py-3 border rounded-lg ${
-                  errors.firstname && touched.firstname
+                className={`w-full px-4 py-3 border rounded-lg ${errors.firstname && touched.firstname
                     ? "border-red-500"
                     : "focus:ring-green-600"
-                }`}
+                  }`}
               />
               {errors.firstname && touched.firstname && (
                 <p className="text-sm text-red-500 mt-1">
@@ -197,11 +199,10 @@ export default function Signup() {
                 value={form.lastname}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                className={`w-full px-4 py-3 border rounded-lg ${
-                  errors.lastname && touched.lastname
+                className={`w-full px-4 py-3 border rounded-lg ${errors.lastname && touched.lastname
                     ? "border-red-500"
                     : "focus:ring-green-600"
-                }`}
+                  }`}
               />
               {errors.lastname && touched.lastname && (
                 <p className="text-sm text-red-500 mt-1">
@@ -218,16 +219,28 @@ export default function Signup() {
             value={form.email}
             onChange={handleChange}
             onBlur={handleBlur}
-            className={`w-full px-4 py-3 border rounded-lg ${
-              errors.email && touched.email
+            className={`w-full px-4 py-3 border rounded-lg ${errors.email && touched.email
                 ? "border-red-500"
                 : "focus:ring-green-600"
-            }`}
+              }`}
           />
           {errors.email && touched.email && (
             <p className="text-sm text-red-500 mt-1">{errors.email}</p>
           )}
-
+          <select
+            name="role"
+            value={form.role}
+            onChange={handleChange}
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-green-600 outline-none bg-white ${!form.role ? "text-gray-400" : "text-black"
+              }`}
+          >
+            <option value="" disabled>Select Role</option>
+            <option value="user" className="text-black">User</option>
+            <option value="admin" className="text-black">Admin</option>
+          </select>
+          {errors.role && (
+            <p className="text-sm text-red-500 mt-1">{errors.role}</p>
+          )}
           <input
             name="password"
             type="password"
@@ -235,11 +248,10 @@ export default function Signup() {
             value={form.password}
             onChange={handleChange}
             onBlur={handleBlur}
-            className={`w-full px-4 py-3 border rounded-lg ${
-              errors.password && touched.password
+            className={`w-full px-4 py-3 border rounded-lg ${errors.password && touched.password
                 ? "border-red-500"
                 : "focus:ring-green-600"
-            }`}
+              }`}
           />
           {errors.password && touched.password && (
             <p className="text-sm text-red-500 mt-1">
@@ -250,11 +262,10 @@ export default function Signup() {
           <button
             type="submit"
             disabled={loading || hasErrors}
-            className={`w-full py-3 rounded-lg font-semibold transition ${
-              loading || hasErrors
+            className={`w-full py-3 rounded-lg font-semibold transition ${loading || hasErrors
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-green-600 hover:bg-green-700 text-white"
-            }`}
+              }`}
           >
             {loading ? "Creating Account..." : "Create Account"}
           </button>

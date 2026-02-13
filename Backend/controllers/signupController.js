@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { findUserByEmail, createUser } from "../services/userService.js";
+import { findUserByEmail, createUser, findUserByRole } from "../services/userService.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -9,11 +9,19 @@ import {
 } from "../utils/constants.js";
 
 export const signup = asyncHandler(async (req, res) => {
-  const { firstname, lastname, email, password } = req.body;
+  const { firstname, lastname, email, password, role } = req.body;
 
   const exists = await findUserByEmail(email);
   if (exists) {
     throw new ApiError(HTTP_BAD_REQUEST, "Email already exists");
+  }
+
+  // Check if admin already exists
+  if (role === 'admin') {
+    const adminExists = await findUserByRole('admin');
+    if (adminExists) {
+      throw new ApiError(HTTP_BAD_REQUEST, "An admin account already exists.");
+    }
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -22,7 +30,8 @@ export const signup = asyncHandler(async (req, res) => {
     firstname,
     lastname,
     email,
-    password: hashedPassword
+    password: hashedPassword,
+    role: role || "user"
   });
 
   return res.status(HTTP_CREATED).json(

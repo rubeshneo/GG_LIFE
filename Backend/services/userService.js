@@ -45,3 +45,12 @@ export const updateUserById = async (userId, updateData) => {
 export const saveUser = async (user) => {
     return await user.save();
 };
+
+/**
+ * Find a user by their role.
+ * @param {string} role - The role to search for.
+ * @returns {Promise<Object|null>} The user document or null if not found.
+ */
+export const findUserByRole = async (role) => {
+    return await User.findOne({ role });
+};
