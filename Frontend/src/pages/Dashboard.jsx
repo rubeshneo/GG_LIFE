@@ -35,6 +35,14 @@ export default function Dashboard() {
           <p className="text-gray-500 mt-2">
             This is the GG Life dashboard area.
           </p>
+
+          <div className="mt-6 flex gap-4">
+            <button 
+            onClick={()=>navigate("/chat")}
+            className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 transition">
+              Inbox
+            </button>
+          </div>
         </div>
       </div>
     </div>

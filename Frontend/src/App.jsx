@@ -9,6 +9,7 @@ import ResetPassword from "./pages/ResetPassword";
 import AuditLog from "./pages/AuditLog";
 import ActiveUsers from "./pages/ActiveUsers";
 import AdminDashboard from "./pages/AdminDashboard";
+import Chat from "./pages/Chat";
 
 export default function App() {
   return (
@@ -24,7 +25,7 @@ export default function App() {
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/audit-log" element={<AuditLog />} />
         <Route path="/active-users" element={<ActiveUsers />} />
-
+        <Route path="/chat" element={<Chat />} />
       </Routes>
     </BrowserRouter>
   );
