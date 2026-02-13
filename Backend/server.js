@@ -43,9 +43,12 @@ io.on("connection", (socket) => {
   console.log("New client connected", socket.id);
 
   socket.on("userOnline", (userData) => {
+    // Extract userId safely
+    const userId = userData.id || userData._id || userData.userId;
+
     // Avoid duplicates
-    if (!onlineUsers.some(u => u.userId === userData.userId)) {
-      onlineUsers.push({ ...userData, socketId: socket.id });
+    if (userId && !onlineUsers.some(u => u.userId === userId)) {
+      onlineUsers.push({ ...userData, userId, socketId: socket.id });
     }
     // Broadcast updated list to everyone
     io.emit("onlineUsers", onlineUsers);
