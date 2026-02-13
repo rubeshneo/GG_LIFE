@@ -9,12 +9,9 @@ import ResetPassword from "./pages/ResetPassword";
 import AuditLog from "./pages/AuditLog";
 import ActiveUsers from "./pages/ActiveUsers";
 import AdminDashboard from "./pages/AdminDashboard";
-<<<<<<< HEAD
 import Chat from "./pages/Chat";
 
-=======
 import ProtectedRoute from "./pages/ProtectedRoute";
->>>>>>> 8d315d3 (Frontend-changes-by-deepthi)
 export default function App() {
   return (
     <BrowserRouter>
@@ -28,9 +25,7 @@ export default function App() {
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/audit-log" element={<AuditLog />} />
         <Route path="/active-users" element={<ActiveUsers />} />
-<<<<<<< HEAD
         <Route path="/chat" element={<Chat />} />
-=======
         <Route
           path="/dashboard"
           element={
@@ -40,7 +35,6 @@ export default function App() {
           }
         />
 
->>>>>>> 8d315d3 (Frontend-changes-by-deepthi)
       </Routes>
     </BrowserRouter>
   );
