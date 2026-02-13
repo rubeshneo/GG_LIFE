@@ -12,9 +12,9 @@ export default function AdminDashboard() {
         } else {
             const parsedUser = JSON.parse(userData);
 
-           // if (parsedUser.role !== "admin") {
-             //   navigate("/dashboard");
-               // return;
+            // if (parsedUser.role !== "admin") {
+            //   navigate("/dashboard");
+            // return;
             //}
 
             setUser(parsedUser);
@@ -57,6 +57,13 @@ export default function AdminDashboard() {
                         >
                             Users Logged In
                         </button>
+
+                        <button
+                            onClick={() => navigate("/chat")}
+                            className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 transition">
+                            Inbox
+                        </button>
+
                     </div>
 
                 </div>
