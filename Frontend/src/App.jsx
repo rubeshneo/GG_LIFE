@@ -6,6 +6,10 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import AuditLog from "./pages/AuditLog";
+import ActiveUsers from "./pages/ActiveUsers";
+import AdminDashboard from "./pages/AdminDashboard";
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -16,7 +20,11 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/audit-log" element={<AuditLog />} />
+        <Route path="/active-users" element={<ActiveUsers />} />
+
       </Routes>
     </BrowserRouter>
   );
