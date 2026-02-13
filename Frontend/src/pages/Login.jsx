@@ -37,7 +37,12 @@ export default function Login() {
         console.log("userdetails", data.data.user)
         setAttemptsLeft(null);
         setIsLocked(false);
-        navigate("/dashboard");
+
+        if (data.data.user.role ==="admin"){
+          navigate("/admin-dashboard");
+        }else{
+          navigate("/dashboard");
+        }
 
       } else {
         let msg = data.message || "Login failed";
