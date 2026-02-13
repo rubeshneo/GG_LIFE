@@ -85,11 +85,11 @@ export default function Login() {
           </div>
         )}
 
-        {attemptsLeft !== null && !isLocked && (
+        {/* {attemptsLeft !== null && !isLocked && (
           <p className="mt-2 text-sm text-red-500 text-center">
             Attempts left: {attemptsLeft}
           </p>
-        )}
+        )} */}
 
 
         <form onSubmit={handleLogin} className="mt-6 space-y-4">
