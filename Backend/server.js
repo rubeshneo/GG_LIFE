@@ -21,82 +21,93 @@ app.use(express.json());
 
 connectDB();
 
-
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
-app.use(errorHandler);
 
+// Root route
 app.get("/", (req, res) => {
   res.send("Server running and DB connected");
 });
 
+// Error handler
+app.use(errorHandler);
 
+// Create HTTP server
 const httpServer = createServer(app);
+
+// Create Socket.IO server
 const io = new Server(httpServer, {
   cors: {
     origin: "*",
   },
 });
 
+// Store online users
 let onlineUsers = [];
 
 io.on("connection", (socket) => {
-  console.log("New client connected", socket.id);
+  console.log("New client connected:", socket.id);
 
+  // User comes online
   socket.on("userOnline", (userData) => {
-    // Extract userId safely
     const userId = userData.id || userData._id || userData.userId;
 
-    // Avoid duplicates
-    if (userId && !onlineUsers.some(u => u.userId === userId)) {
-      onlineUsers.push({ ...userData, userId, socketId: socket.id });
-    }
-    // Broadcast updated list to everyone
-    io.emit("onlineUsers", onlineUsers);
-  });
-
-  socket.on("privateMessage", (data) => {
-    const { receiverId } = data;
-    const receiver = onlineUsers.find((user) => user.userId === receiverId);
-
-    if (receiver) {
-      io.to(receiver.socketId).emit("receiveMessage", {
-        senderId: data.senderId,
-        text: data.text,
-        time: data.time,
+    if (userId && !onlineUsers.some((u) => u.userId === userId)) {
+      onlineUsers.push({
+        ...userData,
+        userId,
+        socketId: socket.id,
       });
     }
-  });
 
-  socket.on("disconnect", () => {
-    onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id);
     io.emit("onlineUsers", onlineUsers);
-    console.log("Client disconnected", socket.id);
+  });
+
+  // Private message (SAVE + EMIT)
+  socket.on("privateMessage", async (data) => {
+    try {
+      const { senderId, receiverId, text, time } = data;
+
+      // Save message to DB
+      const newMessage = await Message.create({
+        senderId,
+        receiverId,
+        text,
+      });
+
+      // Find receiver in online list
+      const receiver = onlineUsers.find(
+        (user) => user.userId === receiverId
+      );
+
+      // If receiver is online, send message
+      if (receiver) {
+        io.to(receiver.socketId).emit("receiveMessage", {
+          ...newMessage._doc,
+          time: time || new Date(),
+        });
+      }
+
+    } catch (error) {
+      console.error("Error handling privateMessage:", error);
+    }
+  });
+
+  // Disconnect
+  socket.on("disconnect", () => {
+    onlineUsers = onlineUsers.filter(
+      (user) => user.socketId !== socket.id
+    );
+
+    io.emit("onlineUsers", onlineUsers);
+    console.log("Client disconnected:", socket.id);
   });
 });
 
-socket.on("privateMessage", async (data) => {
-  const { senderId, receiverId, text } = data;
-
-  // SAVE TO DATABASE
-  const newMessage = await Message.create({
-    senderId,
-    receiverId,
-    text,
-  });
-
-  const receiver = onlineUsers.find(
-    (user) => user.userId === receiverId
-  );
-
-  if (receiver) {
-    io.to(receiver.socketId).emit("receiveMessage", newMessage);
-  }
-});
-
-
+// Start server
 httpServer.listen(PORT, () => {
-  console.log(`Server running on port ${process.env.PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
