@@ -1,8 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import socket from "../socket/socket";
- 
+
 export default function Chat() {
-  // Fix: Stabilize user object to prevent infinite re-renders
   const user = useMemo(() => {
     try {
       return JSON.parse(localStorage.getItem("user"));
@@ -10,59 +9,61 @@ export default function Chat() {
       return null;
     }
   }, []);
- 
+
   const token = localStorage.getItem("token");
   const [selectedUser, setSelectedUser] = useState(null);
   const [conversations, setConversations] = useState({});
   const [message, setMessage] = useState("");
   const [userDetails, setUserDetails] = useState([]);
   const [error, setError] = useState("");
- 
+
+  const [onlineUsers, setOnlineUsers] = useState([]);
+
+
+
   // FETCH ALL USERS
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         if (!token) return;
- 
+
         const res = await fetch("http://localhost:5000/api/users", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
- 
+
         const data = await res.json();
- 
+
         if (!res.ok) {
           setError(data.message || "Failed to fetch users");
           return;
         }
- 
+
         const usersList = data.data || [];
- 
-        // Fix: Use optional chaining for safety
+
         const filteredUsers = usersList.filter(
           (u) => u._id !== user?.id && u._id !== user?._id
         );
- 
+
         setUserDetails(filteredUsers);
       } catch (err) {
         setError("Something went wrong while fetching users");
       }
     };
- 
+
     if (user) fetchUsers();
-    // Fix: Depend on user._id string, not the object itself
   }, [user?._id, token]);
- 
+
   // SOCKET CONNECTION
   useEffect(() => {
     if (!user || !token) return;
- 
+
     socket.connect();
- 
+
     socket.emit("userOnline", user);
- 
+
     const handleReceiveMessage = (data) => {
       setConversations((prev) => ({
         ...prev,
@@ -72,28 +73,67 @@ export default function Chat() {
         ],
       }));
     };
- 
+
+    const handleOnlineUsers = (users) => {
+      setOnlineUsers(users);
+    };
+
+
     socket.on("receiveMessage", handleReceiveMessage);
- 
+
+    socket.on("onlineUsers", handleOnlineUsers);
+
     return () => {
       socket.off("receiveMessage", handleReceiveMessage);
+      socket.off("onlineUsers", handleOnlineUsers);
       socket.disconnect();
     };
     // Fix: Depend on user._id string
   }, [user?._id, token]);
- 
+
+  useEffect(() => {
+    if (!selectedUser || !token) return;
+
+    const fetchMessages = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:5000/api/messages/${selectedUser._id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await res.json();
+
+        if (res.ok) {
+          setConversations((prev) => ({
+            ...prev,
+            [selectedUser._id]: data.data,
+          }));
+        }
+      } catch (err) {
+        console.error("Failed to load messages");
+      }
+    };
+
+    fetchMessages();
+  }, [selectedUser, token]);
+
+
   const handleSend = () => {
     if (!message.trim() || !selectedUser) return;
- 
+
     const msgData = {
       senderId: user?.id || user?._id,
       receiverId: selectedUser._id,
       text: message,
       time: new Date().toLocaleTimeString(),
     };
- 
+
     socket.emit("privateMessage", msgData);
- 
+
     setConversations((prev) => ({
       ...prev,
       [selectedUser._id]: [
@@ -101,27 +141,27 @@ export default function Chat() {
         msgData,
       ],
     }));
- 
+
     setMessage("");
   };
- 
+
   const currentMessages = selectedUser
     ? conversations[selectedUser._id] || []
     : [];
- 
+
   return (
     <div className="min-h-screen flex bg-gray-100">
- 
+
       {/* Sidebar */}
       <div className="w-1/4 bg-white border-r p-4">
         <h2 className="text-xl font-bold text-green-600 mb-4">
           Users
         </h2>
- 
+
         {error && (
           <p className="text-red-500">{error}</p>
         )}
- 
+
         {userDetails.length === 0 ? (
           <p className="text-gray-500">No users found</p>
         ) : (
@@ -134,21 +174,35 @@ export default function Chat() {
                 : "hover:bg-green-50"
                 }`}
             >
-              {u.firstname}
+              <div className="flex items-center gap-2">
+                <span
+                  className={`h-3 w-3 rounded-full ${onlineUsers.some(
+                    (online) =>
+                      online.userId === u._id ||
+                      online.userId === u.id
+                  )
+                    ? "bg-green-500"
+                    : "bg-red-500"
+                    }`}
+                ></span>
+
+                <span>{u.firstname}</span>
+              </div>
+
             </div>
           ))
         )}
       </div>
- 
+
       {/* Chat Area */}
       <div className="flex-1 flex flex-col">
- 
+
         <div className="bg-green-600 text-white p-4 font-semibold">
           {selectedUser
             ? `Chat with ${selectedUser.firstname}`
             : "Select a user to start chatting"}
         </div>
- 
+
         <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
           {currentMessages.map((msg, index) => (
             <div
@@ -159,7 +213,7 @@ export default function Chat() {
                 }`}
             >
               <div
-                className={`px-4 py-2 rounded-lg max-w-xs ${msg.senderId === (user?.id || user?._id)
+                className={`px-4 py-2 rounded-lg max-w-xs break-words ${msg.senderId === (user?.id || user?._id)
                   ? "bg-green-600 text-white"
                   : "bg-white border"
                   }`}
@@ -172,7 +226,7 @@ export default function Chat() {
             </div>
           ))}
         </div>
- 
+
         {selectedUser && (
           <div className="bg-white p-4 border-t flex">
             <input
@@ -181,7 +235,7 @@ export default function Chat() {
               placeholder="Type message..."
               className="flex-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-600 outline-none"
             />
- 
+
             <button
               onClick={handleSend}
               className="ml-3 bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition"

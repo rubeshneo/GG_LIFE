@@ -8,6 +8,8 @@ import userRoutes from "./routes/userRoutes.js";
 import { errorHandler } from "./middleware/errorMiddleware.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import Message from "./models/Message.js";
+import messageRoutes from "./routes/messageRoutes.js";
 
 dotenv.config();
 
@@ -23,6 +25,7 @@ connectDB();
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/messages", messageRoutes);
 app.use(errorHandler);
 
 app.get("/", (req, res) => {
@@ -73,6 +76,26 @@ io.on("connection", (socket) => {
     console.log("Client disconnected", socket.id);
   });
 });
+
+socket.on("privateMessage", async (data) => {
+  const { senderId, receiverId, text } = data;
+
+  // SAVE TO DATABASE
+  const newMessage = await Message.create({
+    senderId,
+    receiverId,
+    text,
+  });
+
+  const receiver = onlineUsers.find(
+    (user) => user.userId === receiverId
+  );
+
+  if (receiver) {
+    io.to(receiver.socketId).emit("receiveMessage", newMessage);
+  }
+});
+
 
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`);
