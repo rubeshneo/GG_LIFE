@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import socket from "../socket/socket";
-
+ 
 export default function Chat() {
+  // Fix: Stabilize user object to prevent infinite re-renders
   const user = useMemo(() => {
     try {
       return JSON.parse(localStorage.getItem("user"));
@@ -9,7 +10,7 @@ export default function Chat() {
       return null;
     }
   }, []);
-
+ 
   const token = localStorage.getItem("token");
   const [selectedUser, setSelectedUser] = useState(null);
   const [conversations, setConversations] = useState({});
@@ -21,21 +22,22 @@ export default function Chat() {
 
 
 
+ 
   // FETCH ALL USERS
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         if (!token) return;
-
+ 
         const res = await fetch("http://localhost:5000/api/users", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
+ 
         const data = await res.json();
-
+ 
         if (!res.ok) {
           setError(data.message || "Failed to fetch users");
           return;
