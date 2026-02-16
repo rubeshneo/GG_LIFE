@@ -11,6 +11,7 @@ import ActiveUsers from "./pages/ActiveUsers";
 import AdminDashboard from "./pages/AdminDashboard";
 import Chat from "./pages/Chat";
 
+import ProtectedRoute from "./pages/ProtectedRoute";
 export default function App() {
   return (
     <BrowserRouter>
@@ -19,13 +20,21 @@ export default function App() {
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/email-success" element={<EmailSuccess />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/audit-log" element={<AuditLog />} />
         <Route path="/active-users" element={<ActiveUsers />} />
         <Route path="/chat" element={<Chat />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
       </Routes>
     </BrowserRouter>
   );
