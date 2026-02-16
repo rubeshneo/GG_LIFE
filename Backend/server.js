@@ -4,7 +4,10 @@ import cors from "cors";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authroutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import { errorHandler } from "./middleware/errorMiddleware.js";
+import { createServer } from "http";
+import { Server } from "socket.io";
 
 dotenv.config();
 
@@ -19,6 +22,7 @@ connectDB();
 
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/users", userRoutes);
 app.use(errorHandler);
 
 app.get("/", (req, res) => {
@@ -26,9 +30,50 @@ app.get("/", (req, res) => {
 });
 
 
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${process.env.PORT}`);
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+  },
 });
 
+let onlineUsers = [];
 
+io.on("connection", (socket) => {
+  console.log("New client connected", socket.id);
+
+  socket.on("userOnline", (userData) => {
+    // Extract userId safely
+    const userId = userData.id || userData._id || userData.userId;
+
+    // Avoid duplicates
+    if (userId && !onlineUsers.some(u => u.userId === userId)) {
+      onlineUsers.push({ ...userData, userId, socketId: socket.id });
+    }
+    // Broadcast updated list to everyone
+    io.emit("onlineUsers", onlineUsers);
+  });
+
+  socket.on("privateMessage", (data) => {
+    const { receiverId } = data;
+    const receiver = onlineUsers.find((user) => user.userId === receiverId);
+
+    if (receiver) {
+      io.to(receiver.socketId).emit("receiveMessage", {
+        senderId: data.senderId,
+        text: data.text,
+        time: data.time,
+      });
+    }
+  });
+
+  socket.on("disconnect", () => {
+    onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id);
+    io.emit("onlineUsers", onlineUsers);
+    console.log("Client disconnected", socket.id);
+  });
+});
+
+httpServer.listen(PORT, () => {
+  console.log(`Server running on port ${process.env.PORT}`);
+});

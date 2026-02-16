@@ -7,3 +7,4 @@ export { resendCode } from "./resendCodeController.js";
 export { forgotPassword } from "./forgotPasswordController.js";
 export { verifyForgotPassword } from "./verifyForgotPasswordController.js";
 export { resetPassword } from "./resetPasswordController.js";
+export { logout } from "./logoutController.js";

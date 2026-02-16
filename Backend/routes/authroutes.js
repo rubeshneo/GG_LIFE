@@ -1,5 +1,5 @@
 import express from "express";
-import { signup, login, sendCode, verifyCode, resendCode, forgotPassword, verifyForgotPassword, resetPassword } from "../controllers/authController.js";
+import { signup, login, sendCode, verifyCode, resendCode, forgotPassword, verifyForgotPassword, resetPassword, logout } from "../controllers/authController.js";
 import authmiddleware from "../middleware/authmiddleware.js";
 import {
   validateSignup,
@@ -22,6 +22,7 @@ router.post("/resend-code", validateResendCode, resendCode);
 router.post("/forgot-password", validateForgotPasswordEmail, forgotPassword);
 router.post("/verify-forgot-password-code", validateForgotPasswordCode, verifyForgotPassword);
 router.post("/reset-password", validateResetPassword, resetPassword);
+router.post("/logout", authmiddleware, logout);
 router.get("/profile", authmiddleware, (req, res) => {
   res.json({ message: "Protected", userId: req.userId });
 });
