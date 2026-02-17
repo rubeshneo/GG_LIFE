@@ -1,8 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import socket from "../socket/socket";
- 
+
 export default function Chat() {
-  // Fix: Stabilize user object to prevent infinite re-renders
   const user = useMemo(() => {
     try {
       return JSON.parse(localStorage.getItem("user"));
@@ -10,7 +9,7 @@ export default function Chat() {
       return null;
     }
   }, []);
- 
+  const currentUserId = user?.id || user?._id;
   const token = localStorage.getItem("token");
   const [selectedUser, setSelectedUser] = useState(null);
   const [conversations, setConversations] = useState({});
@@ -22,22 +21,22 @@ export default function Chat() {
 
 
 
- 
+
   // FETCH ALL USERS
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         if (!token) return;
- 
+
         const res = await fetch("http://localhost:5000/api/users", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
- 
+
         const data = await res.json();
- 
+
         if (!res.ok) {
           setError(data.message || "Failed to fetch users");
           return;
@@ -46,7 +45,7 @@ export default function Chat() {
         const usersList = data.data || [];
 
         const filteredUsers = usersList.filter(
-          (u) => u._id !== user?.id && u._id !== user?._id
+          (u) => u._id !== currentUserId
         );
 
         setUserDetails(filteredUsers);
@@ -209,13 +208,13 @@ export default function Chat() {
           {currentMessages.map((msg, index) => (
             <div
               key={index}
-              className={`mb-3 flex ${msg.senderId === (user?.id || user?._id)
+              className={`mb-3 flex ${msg.senderId === currentUserId
                 ? "justify-end"
                 : "justify-start"
                 }`}
             >
               <div
-                className={`px-4 py-2 rounded-lg max-w-xs break-words ${msg.senderId === (user?.id || user?._id)
+                className={`px-4 py-2 rounded-lg max-w-xs break-words ${msg.senderId === currentUserId
                   ? "bg-green-600 text-white"
                   : "bg-white border"
                   }`}
