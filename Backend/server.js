@@ -55,7 +55,11 @@ io.on("connection", (socket) => {
   socket.on("userOnline", (userData) => {
     const userId = userData.id || userData._id || userData.userId;
 
-    if (userId && !onlineUsers.some((u) => u.userId === userId)) {
+    if (userId) {
+      // Remove existing socket for this user if present (handles refresh/reconnect)
+      onlineUsers = onlineUsers.filter((u) => u.userId !== userId);
+
+      // Add new socket connection
       onlineUsers.push({
         ...userData,
         userId,
@@ -68,6 +72,7 @@ io.on("connection", (socket) => {
 
   // Private message (SAVE + EMIT)
   socket.on("privateMessage", async (data) => {
+
     try {
       const { senderId, receiverId, text, time } = data;
 
@@ -90,6 +95,11 @@ io.on("connection", (socket) => {
           time: time || new Date(),
         });
       }
+
+      io.to(socket.id).emit("recieveMessage", {
+        ...newMessage._doc,
+        time: time || new Date()
+      });
 
     } catch (error) {
       console.error("Error handling privateMessage:", error);
